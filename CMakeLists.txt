@@ -59,6 +59,23 @@ else()
     set(CUTTER_VERSION_FULL "${CUTTER_VERSION}-${GIT_BRANCH}-${GIT_REV}")
 endif()
 
+# Determine the minimum supported macOS version to compile for
+if(APPLE)
+  if(DEFINED ENV{MACOSX_DEPLOYMENT_TARGET})
+    set(CUTTER_MACOS_DEPLOYMENT_TARGET $ENV{MACOSX_DEPLOYMENT_TARGET})
+  else()
+    # arm64 builds support macOS 11 and above.
+    # x86_64 builds support macOS 10.14 and above.
+    if(DEFINED CMAKE_APPLE_SILICON_PROCESSOR AND CMAKE_APPLE_SILICON_PROCESSOR MATCHES "arm64e?")
+      set(CUTTER_MACOS_DEPLOYMENT_TARGET 11.0)
+    else()
+      set(CUTTER_MACOS_DEPLOYMENT_TARGET 10.14)
+    endif()
+  endif()
+
+  set(CMAKE_OSX_DEPLOYMENT_TARGET ${CUTTER_MACOS_DEPLOYMENT_TARGET} CACHE STRING "Minimum OS X deployment version" FORCE)
+endif()
+
 project(Cutter VERSION "${CUTTER_VERSION}")
 
 # Enable solution folder support
